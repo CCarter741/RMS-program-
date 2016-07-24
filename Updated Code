@@ -1,0 +1,103 @@
+# Program was created by Neftali Eunice Romero and Cavanaugh Carter
+#
+# Variabes :
+#     Ia1 or Ia2 = Current from main A
+#     Ib1 or Ib2 = Current from Main B
+#     counterA   = Counter for main A
+#     counterB   = Counter for the main B
+#     TimestampA = Time stamp of the polarity change in main B
+#     TimestampB = Time stamp for the polarity change in main B
+#     inputfile = Input file name
+#     header    = Header of file
+#     flag      = Flag to exit loop
+#
+# INPUT : filename
+# OUTPUT : rms.DAT, rms value
+#
+# Desired Input File Header Example :
+#
+# LabVIEW Measurement,
+# Writer_Version,2
+# Reader_Version,2
+# Separator,Comma
+# ...
+# ***End_of_Header***,,,,
+# X_Value,Current A,Current B,VoltageA,Comment
+#12645.100000,2.036982,-2.033407,53.762438
+#12645.100083,2.015755,-1.864721,58.464431
+#12645.100167,2.079436,-2.054492,63.418880
+# ...
+#------------------------------------------------------------------------------
+# Import Desired Modules
+import math
+
+# RMS Function
+def rms(x,counter):
+    total = math.sqrt((float(x)/counter)
+    return total
+
+# Open Input File
+while (True):
+    try:
+        inputfile = open(input("Please insert input filename: "))
+        print ("File " + inputfile + " opened.")
+        break
+    except IOError:
+        print ('The input file did not open')
+        pass
+
+# Open Output File (Titled Similarily to Given Input File) (Future : HDF5 File)
+while (True):
+    try:
+        outputfile = open((inputfile + ".dat"),"w")
+        print "File Opened: " + outputfile
+        break
+    except IOerror:
+        print "The output file did not open"
+        pass
+
+# Read and Skip Header Lines of File
+flag = 1
+headercounter = 0
+while (flag==1) : # Header Lines
+    headercounter = HeaderCounter + 1
+    header=inputfile.readline(3)
+    if (Header=="X_V"):   # When this is reached, End of Header Found
+        flag = 2
+    else:
+        inputfile.readline()
+
+# Initialize Variables
+counterA = 0
+counterB = 0
+sumsqA = 0
+sumsqB = 0
+Ia2 = 0
+Ib1 = 0
+Ia1 = 0
+Ib2 = 0
+# Read Final Header Line
+inputfile.readline()
+# Read Data to Calculate RMS Values
+for line in inputfile:
+    Ia2 =Ia1
+    Ib2 = Ib1
+    Timestamp,Ia1,Ib1, Va = line.split(',',3)
+    if (float(Ia1) > 0 and float(Ia2) < 0): #Change in Polarity
+        result = rms(sumsqA, counterA)
+        outputfile.write('%s, %3.3f\n' % (Timestamp, result))
+        counterA=0 # Re-initialize Counters
+        sumsqA = 0
+    else: # Calculate Sum of Squares
+        counterA = counterA + 1
+        sumsqA = float(Ia1)**2 + sumsqA
+    if (float(Ib1) > 0 and float(Ib2) < 0):
+        counterB = 0 # Re-initialize Counter for Current B
+        sumsqB = 0
+    else:
+        counterB = counterB + 1
+        sumsqB = sumsqB + float(Ib1)**2
+
+# Close Up Program
+outputfile.close
+inputfile.close
